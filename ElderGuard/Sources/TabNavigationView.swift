@@ -1,15 +1,15 @@
 import SwiftUI
 
 struct TabNavigationView: View {
-    var body: some View {
-        TabView {
-            Tab {}
+	var body: some View {
+		TabView {
+			Tab {}
 
-            Tab {}
-        }
-    }
+			Tab {}
+		}
+	}
 }
 
 #Preview {
-    TabNavigationView()
+	TabNavigationView()
 }
