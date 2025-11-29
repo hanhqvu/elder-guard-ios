@@ -1,0 +1,13 @@
+# file options
+--exclude
+
+# format options
+--xcodeindentation true
+--commas false
+--indent tab
+--tab-width 4
+--indent-case true
+--indent-strings true
+
+# rule
+--disable wrapMultilineStatementBraces
