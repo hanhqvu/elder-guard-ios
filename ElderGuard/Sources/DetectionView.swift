@@ -28,7 +28,7 @@ struct DetectionView: View {
 				// Dismiss Button
 				Button {
 					Task {
-						try? await NotificationRepository.shared.markAsViewed(id: notificationId)
+						try? await DetectionNotificationRepository.shared.markAsViewed(id: notificationId)
 						onDismiss?()
 					}
 				} label: {
