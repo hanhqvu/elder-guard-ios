@@ -4,7 +4,7 @@ import SwiftUI
 struct ElderGuardApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TabNavigationView()
         }
     }
 }
