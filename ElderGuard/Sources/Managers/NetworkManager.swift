@@ -46,9 +46,7 @@ final class NetworkManager {
 		let config = URLSessionConfiguration.default
 		config.timeoutIntervalForRequest = 30
 		session = URLSession(configuration: config)
-
 		decoder = JSONDecoder()
-		decoder.dateDecodingStrategy = .iso8601
 	}
 
 	func fetch<T: Decodable>(_: T.Type, from path: String) async throws -> T {
