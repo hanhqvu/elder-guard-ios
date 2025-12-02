@@ -42,7 +42,7 @@ struct DetectionView: View {
 				}
 
 				// Slide to Call Button
-				SlideToCallButton(phoneNumber: phoneNumber)
+				SlideToCallButton(phoneNumber: phoneNumber, onDismiss: onDismiss)
 			}
 			.padding(.horizontal, 32)
 			.padding(.bottom, 60)
@@ -55,6 +55,7 @@ struct DetectionView: View {
 
 struct SlideToCallButton: View {
 	let phoneNumber: String
+	var onDismiss: (() -> Void)?
 
 	@State private var dragOffset: CGFloat = 0
 	@State private var isDragging = false
@@ -99,6 +100,7 @@ struct SlideToCallButton: View {
 							.onEnded { _ in
 								isDragging = false
 								if dragProgress >= 0.8 {
+									onDismiss?()
 									initiateCall()
 								}
 								withAnimation(.spring(response: 0.3)) {
