@@ -15,6 +15,7 @@ import PackageDescription
 let package = Package(
 	name: "ElderGuard",
 	dependencies: [
-		.package(url: "https://github.com/kean/Nuke", .upToNextMajor(from: "12.8.0"))
+		.package(url: "https://github.com/kean/Nuke", .upToNextMajor(from: "12.8.0")),
+		.package(url: "https://github.com/GetStream/stream-video-swift-webrtc.git", branch: "main")
 	]
 )

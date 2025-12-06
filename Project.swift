@@ -25,6 +25,7 @@ let settings: Settings = .settings(
 
 let dependencies: [TargetDependency] = [
 	.external(name: "NukeUI"),
+	.package(product: "StreamWebRTC", type: .runtime),
 	.package(product: "SwiftLintBuildToolPlugin", type: .plugin)
 ]
 
@@ -48,7 +49,8 @@ let swiftFormatScript = TargetScript.pre(
 let project = Project(
 	name: "ElderGuard",
 	packages: [
-		.package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.57.0")
+		.package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.57.0"),
+		.package(url: "https://github.com/GetStream/stream-video-swift-webrtc.git", .branch("main"))
 	],
 	settings: settings,
 	targets: [
@@ -56,7 +58,7 @@ let project = Project(
 			name: "ElderGuard",
 			destinations: destinations,
 			product: .app,
-			bundleId: "com.3143.ElderGuard",
+			bundleId: "com.3143.YouGuard",
 			deploymentTargets: .iOS("18.0"),
 			infoPlist: .extendingDefault(
 				with: [
@@ -103,6 +105,7 @@ let project = Project(
 				"ElderGuard/Sources",
 				"ElderGuard/Resources"
 			],
+			entitlements: .file(path: "ElderGuard/ElderGuard.entitlements"),
 			scripts: [swiftFormatScript],
 			dependencies: dependencies
 		),
