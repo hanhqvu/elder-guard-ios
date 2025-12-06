@@ -5,6 +5,7 @@
 //  Created by Hanh Vu on 2025/11/29.
 //
 
+import AVKit
 import SwiftUI
 
 struct DetectionView: View {
@@ -12,19 +13,35 @@ struct DetectionView: View {
 	let phoneNumber: String
 	var onDismiss: (() -> Void)?
 
+	@State private var isMicActive = false
+
 	var body: some View {
-		VStack(spacing: 40) {
-			Spacer()
+		VStack {
+			VStack(spacing: 0) {
+				// Livestream Video
+				HLSVideoPlayer()
+					.frame(height: 250)
 
-			// Warning Icon
-			Image(systemName: "exclamationmark.triangle.fill")
-				.font(.system(size: 120))
-				.foregroundStyle(.yellow)
-
-			Spacer()
+				// Mic Button for 2-way audio
+				Button {
+					isMicActive.toggle()
+				} label: {
+					Image(systemName: isMicActive ? "mic.fill" : "mic.slash.fill")
+						.font(.title2)
+						.foregroundStyle(.white)
+						.frame(width: 56, height: 56)
+						.background(isMicActive ? Color.green : Color.gray.opacity(0.8))
+						.clipShape(Circle())
+						.shadow(radius: 4)
+				}
+				.padding(.top, 8)
+			}
 
 			// Buttons
-			VStack(spacing: 20) {
+			VStack(spacing: 60) {
+				// Slide to Call Button
+				SlideToCallButton(phoneNumber: phoneNumber, onDismiss: onDismiss)
+
 				// Dismiss Button
 				Button {
 					Task {
@@ -32,22 +49,18 @@ struct DetectionView: View {
 						onDismiss?()
 					}
 				} label: {
-					Text("Tap to Dismiss")
-						.font(.headline)
-						.foregroundStyle(.white)
-						.frame(maxWidth: .infinity)
-						.padding(.vertical, 16)
-						.background(Color.gray.opacity(0.6))
-						.clipShape(RoundedRectangle(cornerRadius: 12))
+					VStack(spacing: 8) {
+						Image(systemName: "xmark.circle.fill")
+							.font(.system(size: 48))
+							.foregroundStyle(.white, Color.gray.opacity(0.6))
+						Text("Dismiss")
+							.font(.subheadline)
+					}
 				}
-
-				// Slide to Call Button
-				SlideToCallButton(phoneNumber: phoneNumber, onDismiss: onDismiss)
 			}
-			.padding(.horizontal, 32)
-			.padding(.bottom, 60)
+			.padding(.top, 40)
 		}
-		.background(Color.black.opacity(0.9))
+		.padding()
 	}
 }
 

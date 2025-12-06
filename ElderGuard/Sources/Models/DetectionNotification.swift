@@ -22,7 +22,7 @@ extension DetectionNotification {
 		if let date = iso8601Formatter.date(from: dateString) {
 			return date
 		}
-		
+
 		iso8601Formatter.formatOptions = [.withInternetDateTime]
 		return iso8601Formatter.date(from: dateString) ?? Date()
 	}
