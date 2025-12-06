@@ -5,7 +5,6 @@
 //  Created by Hanh Vu on 2025/11/29.
 //
 
-import AVKit
 import SwiftUI
 
 struct DetectionView: View {
@@ -13,29 +12,11 @@ struct DetectionView: View {
 	let phoneNumber: String
 	var onDismiss: (() -> Void)?
 
-	@State private var isMicActive = false
-
 	var body: some View {
 		VStack {
-			VStack(spacing: 0) {
-				// Livestream Video
-				HLSVideoPlayer()
-					.frame(height: 250)
-
-				// Mic Button for 2-way audio
-				Button {
-					isMicActive.toggle()
-				} label: {
-					Image(systemName: isMicActive ? "mic.fill" : "mic.slash.fill")
-						.font(.title2)
-						.foregroundStyle(.white)
-						.frame(width: 56, height: 56)
-						.background(isMicActive ? Color.green : Color.gray.opacity(0.8))
-						.clipShape(Circle())
-						.shadow(radius: 4)
-				}
-				.padding(.top, 8)
-			}
+			// Livestream Video
+			WebRTCStreamView()
+				.frame(height: 250)
 
 			// Buttons
 			VStack(spacing: 60) {
