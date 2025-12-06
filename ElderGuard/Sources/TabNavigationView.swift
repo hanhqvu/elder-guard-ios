@@ -2,6 +2,7 @@ import SwiftUI
 
 enum AppTab: String {
 	case home
+	case alert
 	case activity
 }
 
@@ -10,6 +11,10 @@ struct TabNavigationView: View {
 
 	var body: some View {
 		TabView(selection: $selectedTab) {
+			Tab("Alert", systemImage: "bell.fill", value: .alert) {
+				AlertListView()
+			}
+
 			Tab("Home", systemImage: "house.fill", value: .home) {
 				HomeView()
 			}
