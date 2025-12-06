@@ -15,6 +15,15 @@ enum AppEnvironment: String {
 		}
 	}
 
+	var signalingURL: URL {
+		switch self {
+			case .development:
+				return URL(string: "ws://localhost:8080/ws")!
+			case .production:
+				return URL(string: "wss://api.elderguard.com/ws")!
+		}
+	}
+
 	static var current: AppEnvironment {
 		#if DEBUG
 			return .development
