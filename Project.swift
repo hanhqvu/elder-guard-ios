@@ -5,10 +5,10 @@ let swiftVersion = "5.0"
 let debugScheme: Scheme =
 	.scheme(
 		name: "Debug", shared: true,
-		buildAction: .buildAction(targets: ["ElderGuard"]),
-		testAction: .targets(["ElderGuard"]),
+		buildAction: .buildAction(targets: ["YouGuard"]),
+		testAction: .targets(["YouGuard"]),
 		runAction: .runAction(
-			executable: "ElderGuard"
+			executable: "YouGuard"
 		)
 	)
 
@@ -47,7 +47,7 @@ let swiftFormatScript = TargetScript.pre(
 )
 
 let project = Project(
-	name: "ElderGuard",
+	name: "YouGuard",
 	packages: [
 		.package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.57.0"),
 		.package(url: "https://github.com/GetStream/stream-video-swift-webrtc.git", .branch("main"))
@@ -55,7 +55,7 @@ let project = Project(
 	settings: settings,
 	targets: [
 		.target(
-			name: "ElderGuard",
+			name: "YouGuard",
 			destinations: destinations,
 			product: .app,
 			bundleId: "com.3143.YouGuard",
@@ -69,7 +69,7 @@ let project = Project(
 				]
 			),
 			resources: .resources(
-				["ElderGuard/Resources"],
+				["YouGuard/Resources"],
 				privacyManifest: .privacyManifest(
 					tracking: false,
 					trackingDomains: [],
@@ -102,23 +102,23 @@ let project = Project(
 				)
 			),
 			buildableFolders: [
-				"ElderGuard/Sources",
-				"ElderGuard/Resources"
+				"YouGuard/Sources",
+				"YouGuard/Resources"
 			],
-			entitlements: .file(path: "ElderGuard/ElderGuard.entitlements"),
+			entitlements: .file(path: "YouGuard/YouGuard.entitlements"),
 			scripts: [swiftFormatScript],
 			dependencies: dependencies
 		),
 		.target(
-			name: "ElderGuardTests",
+			name: "YouGuardTests",
 			destinations: .iOS,
 			product: .unitTests,
-			bundleId: "dev.tuist.ElderGuardTests",
+			bundleId: "dev.tuist.YouGuardTests",
 			infoPlist: .default,
 			buildableFolders: [
-				"ElderGuard/Tests"
+				"YouGuard/Tests"
 			],
-			dependencies: [.target(name: "ElderGuard")]
+			dependencies: [.target(name: "YouGuard")]
 		)
 	],
 	schemes: [
