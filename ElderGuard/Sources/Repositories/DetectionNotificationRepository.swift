@@ -39,14 +39,14 @@ final class DetectionNotificationRepository {
 		// Update local cache
 		if var cached = cache.get(cacheKey) {
 			if let index = cached.firstIndex(where: { $0.id == id }) {
-				var notification = cached[index]
-				notification = DetectionNotification(
+				let notification = cached[index]
+				let updatedNotification = DetectionNotification(
 					id: notification.id,
 					time: notification.time,
 					type: notification.type,
 					view: true
 				)
-				cached[index] = notification
+				cached[index] = updatedNotification
 				cache.set(cached, forKey: cacheKey)
 			}
 		}
