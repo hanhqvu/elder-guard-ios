@@ -45,7 +45,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 }
 
 @main
-struct ElderGuardApp: App {
+struct YouGuardApp: App {
 	@UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
 	var body: some Scene {
