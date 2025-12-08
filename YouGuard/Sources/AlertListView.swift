@@ -1,10 +1,28 @@
+import AVKit
 import SwiftUI
+
+struct VideoPlayerView: UIViewControllerRepresentable {
+	let player: AVPlayer
+	let autoplay: Bool
+
+	func makeUIViewController(context _: Context) -> AVPlayerViewController {
+		let controller = AVPlayerViewController()
+		controller.player = player
+
+		if autoplay {
+			player.play()
+		}
+
+		return controller
+	}
+
+	func updateUIViewController(_: AVPlayerViewController, context _: Context) {}
+}
 
 struct AlertListView: View {
 	@State private var notifications: [DetectionNotification] = []
 	@State private var isLoading = false
 	@State private var errorMessage: String?
-	@State private var isShowingAll = false
 
 	private let emergencyPhoneNumber = "911"
 
@@ -15,30 +33,11 @@ struct AlertListView: View {
 					loadingView
 				} else if errorMessage != nil {
 					emptyStateView
-				} else if filteredNotifications.isEmpty {
-					emptyStateView
 				} else {
 					notificationsList
 				}
 			}
 			.navigationTitle("Alert")
-			.toolbar {
-				ToolbarItem(placement: .topBarTrailing) {
-					HStack(spacing: 4) {
-						if isShowingAll {
-							Text("Filtered by: All")
-								.font(.subheadline)
-						}
-
-						Button {
-							isShowingAll.toggle()
-						} label: {
-							Image(systemName:
-								isShowingAll ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
-						}
-					}
-				}
-			}
 			.refreshable {
 				await fetchNotifications(forceRefresh: true)
 			}
@@ -48,30 +47,10 @@ struct AlertListView: View {
 		}
 	}
 
-	private var filteredNotifications: [DetectionNotification] {
-		let filtered = isShowingAll
-			? notifications.filter { !$0.view }
-			: notifications
-
-		return filtered.sorted { $0.timestamp > $1.timestamp }
-	}
-
 	private var notificationsList: some View {
 		List {
-			ForEach(filteredNotifications) { notification in
-				NavigationLink {
-					DetectionView(
-						notificationId: notification.id,
-						phoneNumber: emergencyPhoneNumber,
-						onDismiss: {
-							Task {
-								await fetchNotifications(forceRefresh: true)
-							}
-						}
-					)
-				} label: {
-					NotificationRow(notification: notification)
-				}
+			ForEach(notifications.sorted { $0.timestamp > $1.timestamp }) { notification in
+				NotificationRow(notification: notification)
 			}
 		}
 		.listStyle(.plain)
@@ -110,38 +89,52 @@ struct AlertListView: View {
 
 struct NotificationRow: View {
 	let notification: DetectionNotification
+	@State private var showVideo = false
 
 	var body: some View {
-		HStack(alignment: .top, spacing: 12) {
-			Image(systemName: notificationIcon)
-				.font(.system(size: 24))
-				.foregroundStyle(notification.view ? Color.secondary : Color.red)
-				.frame(width: 40)
+		Button {
+			showVideo = true
+		} label: {
+			HStack(alignment: .top, spacing: 12) {
+				Image(systemName: notificationIcon)
+					.font(.system(size: 24))
+					.foregroundStyle(notification.view ? Color.secondary : Color.red)
+					.frame(width: 40)
 
-			VStack(alignment: .leading, spacing: 4) {
-				HStack {
-					Text(notification.type.capitalized)
-						.font(.headline)
+				VStack(alignment: .leading, spacing: 4) {
+					HStack {
+						Text(notification.type.capitalized)
+							.font(.headline)
 
-					if !notification.view {
-						Circle()
-							.fill(.red)
-							.frame(width: 8, height: 8)
+						if !notification.view {
+							Circle()
+								.fill(.red)
+								.frame(width: 8, height: 8)
+						}
 					}
+
+					Text(formattedDate)
+						.font(.subheadline)
+						.foregroundStyle(.secondary)
 				}
 
-				Text(formattedDate)
-					.font(.subheadline)
-					.foregroundStyle(.secondary)
+				Spacer()
+
+				Image(systemName: "play.circle.fill")
+					.font(.system(size: 24))
+					.foregroundStyle(.blue)
 			}
-
-			Spacer()
-
-			Image(systemName: "chevron.right")
-				.font(.system(size: 14))
-				.foregroundStyle(.secondary)
+			.padding(.vertical, 8)
+			.contentShape(Rectangle())
 		}
-		.padding(.vertical, 4)
+		.buttonStyle(.plain)
+		.fullScreenCover(isPresented: $showVideo) {
+			VideoPlayerView(
+				player: AVPlayer(url: VideoRepository.shared.getVideoURL(for: notification.eventUUID)),
+				autoplay: true
+			)
+			.ignoresSafeArea()
+		}
 	}
 
 	private var notificationIcon: String {
