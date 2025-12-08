@@ -5,6 +5,7 @@ struct DetectionNotification: Codable, Identifiable, Equatable {
 	let time: String
 	let type: String
 	let view: Bool
+	let eventUUID: String
 
 	var isRead: Bool { view }
 	var timestamp: Date { Self.parseDate(time) }
@@ -29,5 +30,6 @@ extension DetectionNotification {
 
 	private enum CodingKeys: String, CodingKey {
 		case id, time, type, view
+		case eventUUID = "event_uuid"
 	}
 }

@@ -44,7 +44,8 @@ final class DetectionNotificationRepository {
 					id: notification.id,
 					time: notification.time,
 					type: notification.type,
-					view: true
+					view: true,
+					eventUUID: notification.eventUUID
 				)
 				cached[index] = updatedNotification
 				cache.set(cached, forKey: cacheKey)
