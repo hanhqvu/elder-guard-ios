@@ -65,6 +65,10 @@ let project = Project(
 					"UILaunchScreen": [
 						"UIColorName": "",
 						"UIImageName": ""
+					],
+					"NSAppTransportSecurity": [
+						"NSAllowsArbitraryLoads": true,
+						"NSAllowsLocalNetworking": true
 					]
 				]
 			),
