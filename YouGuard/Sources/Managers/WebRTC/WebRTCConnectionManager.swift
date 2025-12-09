@@ -46,9 +46,22 @@ final class WebRTCConnectionManager: ObservableObject {
 
 	func startObserving() {
 		observerCount += 1
-		print("WebRTCConnectionManager: Observer added (count: \(observerCount))")
+		print("WebRTCConnectionManager: Observer added (count: \(observerCount), state: \(connectionState), hasVideoTrack: \(remoteVideoTrack != nil))")
 
+		// First observer should initiate connection if disconnected
 		if observerCount == 1, connectionState == .disconnected {
+			print("WebRTCConnectionManager: First observer, initiating connection")
+			connect()
+		}
+		// If we have observers joining but connection is failed, try reconnecting
+		else if connectionState == .failed {
+			print("WebRTCConnectionManager: Observer added but connection failed, reconnecting")
+			connect()
+		}
+		// If connected but no video track, something is wrong - reconnect
+		else if connectionState == .connected, remoteVideoTrack == nil {
+			print("WebRTCConnectionManager: Observer added but no video track despite connected state, reconnecting")
+			disconnect()
 			connect()
 		}
 	}
@@ -64,9 +77,16 @@ final class WebRTCConnectionManager: ObservableObject {
 	// MARK: - Connection Lifecycle
 
 	func connect() {
-		guard connectionState == .disconnected || connectionState == .failed else {
-			print("WebRTCConnectionManager: Already connecting or connected")
+		// Don't start a new connection if already connecting/reconnecting
+		if connectionState == .connecting || connectionState == .reconnecting {
+			print("WebRTCConnectionManager: Already connecting or reconnecting, skipping")
 			return
+		}
+
+		// Safety check: if somehow still connected, something is wrong - log and force disconnect
+		if connectionState == .connected {
+			print("WebRTCConnectionManager: ⚠️ WARNING: connect() called while already connected - forcing disconnect first")
+			disconnect()
 		}
 
 		print("WebRTCConnectionManager: Connecting...")
@@ -104,18 +124,26 @@ final class WebRTCConnectionManager: ObservableObject {
 	// MARK: - Lifecycle Handling
 
 	func handleBackground() {
-		print("WebRTCConnectionManager: App entering background")
+		print("WebRTCConnectionManager: App entering background (observers: \(observerCount), state: \(connectionState))")
 		// Keep connection alive - WebRTC should continue in background with proper Info.plist config
 	}
 
 	func handleForeground() {
-		print("WebRTCConnectionManager: App entering foreground")
+		print("WebRTCConnectionManager: App entering foreground (observers: \(observerCount), state: \(connectionState), hasVideoTrack: \(remoteVideoTrack != nil))")
 
-		// Check connection health and reconnect if needed
-		if connectionState == .failed || connectionState == .disconnected {
-			if observerCount > 0 {
-				print("WebRTCConnectionManager: Reconnecting on foreground")
+		// If we have observers but no video track, the connection is broken even if state shows connected
+		if observerCount > 0 {
+			if connectionState == .failed || connectionState == .disconnected {
+				print("WebRTCConnectionManager: Reconnecting on foreground (state failed/disconnected)")
 				connect()
+			} else if connectionState == .connected && remoteVideoTrack == nil {
+				// Connection state shows connected but no video track - need to reconnect
+				print("WebRTCConnectionManager: Reconnecting on foreground (no video track)")
+				disconnect()
+				connect()
+			} else if connectionState == .connecting || connectionState == .reconnecting {
+				// Already trying to connect, do nothing
+				print("WebRTCConnectionManager: Already connecting, no action needed")
 			}
 		}
 	}
