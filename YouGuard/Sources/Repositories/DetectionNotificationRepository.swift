@@ -11,7 +11,9 @@ final class DetectionNotificationRepository {
 	private init() {}
 
 	func getNotifications(forceRefresh: Bool = false) async throws -> [DetectionNotification] {
-		if !forceRefresh, let cached = cache.get(cacheKey) {
+		if forceRefresh {
+			cache.remove(cacheKey)
+		} else if let cached = cache.get(cacheKey) {
 			return cached
 		}
 
