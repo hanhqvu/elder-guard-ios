@@ -23,6 +23,8 @@ struct AlertListView: View {
 	@State private var notifications: [DetectionNotification] = []
 	@State private var isLoading = false
 	@State private var errorMessage: String?
+	@State private var firstNotificationId: String?
+	@State private var firstNotificationTapped = false
 
 	private let emergencyPhoneNumber = "911"
 
@@ -59,9 +61,19 @@ struct AlertListView: View {
 	}
 
 	private var notificationsList: some View {
-		List {
-			ForEach(notifications.sorted { $0.timestamp > $1.timestamp }) { notification in
-				NotificationRow(notification: notification)
+		let sortedNotifications = notifications.sorted { $0.timestamp > $1.timestamp }
+		return List {
+			ForEach(Array(sortedNotifications.enumerated()), id: \.element.id) { index, notification in
+				NotificationRow(
+					notification: notification,
+					isFirstNotification: index == 0,
+					firstNotificationTapped: firstNotificationTapped,
+					onTap: {
+						if index == 0 {
+							firstNotificationTapped = true
+						}
+					}
+				)
 			}
 		}
 		.listStyle(.plain)
@@ -129,6 +141,14 @@ struct AlertListView: View {
 		do {
 			let fetchedNotifications = try await DetectionNotificationRepository.shared
 				.getNotifications(forceRefresh: forceRefresh)
+
+			// Reset firstNotificationTapped if the first notification changed
+			let newFirstId = fetchedNotifications.sorted { $0.timestamp > $1.timestamp }.first?.id
+			if firstNotificationId != newFirstId {
+				firstNotificationId = newFirstId
+				firstNotificationTapped = false
+			}
+
 			notifications = fetchedNotifications
 		} catch {
 			errorMessage = error.localizedDescription
@@ -144,24 +164,29 @@ struct AlertListView: View {
 
 struct NotificationRow: View {
 	let notification: DetectionNotification
+	let isFirstNotification: Bool
+	let firstNotificationTapped: Bool
+	let onTap: () -> Void
 	@State private var showVideo = false
 
 	var body: some View {
 		Button {
+			onTap()
 			showVideo = true
 		} label: {
 			HStack(alignment: .top, spacing: 12) {
 				Image(systemName: notificationIcon)
 					.font(.system(size: 24))
-					.foregroundStyle(notification.view ? Color.secondary : Color.red)
+					.foregroundStyle((isFirstNotification && !firstNotificationTapped) ? Color.red : Color.secondary)
 					.frame(width: 40)
 
 				VStack(alignment: .leading, spacing: 4) {
 					HStack {
 						Text(notification.type.capitalized)
 							.font(.headline)
+							.foregroundStyle((isFirstNotification && !firstNotificationTapped) ? Color.red : Color.primary)
 
-						if !notification.view {
+						if isFirstNotification && !firstNotificationTapped {
 							Circle()
 								.fill(.red)
 								.frame(width: 8, height: 8)
@@ -170,14 +195,14 @@ struct NotificationRow: View {
 
 					Text(formattedDate)
 						.font(.subheadline)
-						.foregroundStyle(.secondary)
+						.foregroundStyle((isFirstNotification && !firstNotificationTapped) ? Color.red : Color.secondary)
 				}
 
 				Spacer()
 
 				Image(systemName: "play.circle.fill")
 					.font(.system(size: 24))
-					.foregroundStyle(.blue)
+					.foregroundStyle((isFirstNotification && !firstNotificationTapped) ? Color.red : Color.blue)
 			}
 			.padding(.vertical, 8)
 			.contentShape(Rectangle())
