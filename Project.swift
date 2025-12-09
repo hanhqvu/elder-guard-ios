@@ -69,7 +69,8 @@ let project = Project(
 					"NSAppTransportSecurity": [
 						"NSAllowsArbitraryLoads": true,
 						"NSAllowsLocalNetworking": true
-					]
+					],
+					"UIBackgroundModes": ["audio", "voip"]
 				]
 			),
 			resources: .resources(
