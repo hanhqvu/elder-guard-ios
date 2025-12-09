@@ -12,6 +12,8 @@ struct DetectionView: View {
 	let phoneNumber: String
 	var onDismiss: (() -> Void)?
 
+	@State private var isAudioEnabled = false
+
 	var body: some View {
 		VStack {
 			// Livestream Video
@@ -20,6 +22,25 @@ struct DetectionView: View {
 
 			// Buttons
 			VStack(spacing: 60) {
+				// Audio Button
+				Button {
+					withAnimation(.easeInOut(duration: 0.3)) {
+						isAudioEnabled.toggle()
+					}
+				} label: {
+					VStack(spacing: 8) {
+						Circle()
+							.fill(isAudioEnabled ? Color.green : Color.gray)
+							.frame(width: 64, height: 64)
+							.overlay {
+								Image(systemName: isAudioEnabled ? "mic.fill" : "mic.slash.fill")
+									.font(.system(size: 28))
+									.foregroundStyle(.white)
+							}
+							.opacity(isAudioEnabled ? 1.0 : 0.6)
+					}
+				}
+
 				// Slide to Call Button
 				SlideToCallButton(phoneNumber: phoneNumber)
 
