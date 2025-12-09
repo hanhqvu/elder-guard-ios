@@ -32,10 +32,18 @@ struct TabNavigationView: View {
 			await fetchNotifications()
 		}
 		.onChange(of: scenePhase) { _, newPhase in
-			if newPhase == .active {
-				Task {
-					await fetchNotifications()
-				}
+			switch newPhase {
+				case .active:
+					Task {
+						await fetchNotifications()
+					}
+					WebRTCConnectionManager.shared.handleForeground()
+				case .background:
+					WebRTCConnectionManager.shared.handleBackground()
+				case .inactive:
+					break
+				@unknown default:
+					break
 			}
 		}
 		.sheet(item: $unviewedNotification) { notification in

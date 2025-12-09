@@ -42,6 +42,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 	) {
 		completionHandler([.banner, .sound, .badge])
 	}
+
+	func applicationWillTerminate(_: UIApplication) {
+		Task { @MainActor in
+			WebRTCConnectionManager.shared.disconnect()
+		}
+	}
 }
 
 @main
