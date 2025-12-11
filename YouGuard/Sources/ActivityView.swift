@@ -26,16 +26,18 @@ struct ActivityView: View {
 	]
 
 	var body: some View {
-		List(people) { person in
-			NavigationLink(destination: ActivityDetailView(
-				personName: person.name,
-				personGender: person.gender,
-				personAge: person.age
-			)) {
-				PersonRowView(person: person)
+		NavigationStack {
+			List(people) { person in
+				NavigationLink(destination: ActivityDetailView(
+					personName: person.name,
+					personGender: person.gender,
+					personAge: person.age
+				)) {
+					PersonRowView(person: person)
+				}
 			}
+			.navigationTitle("Theo dõi hoạt động")
 		}
-		.navigationTitle("Theo dõi hoạt động")
 	}
 }
 
