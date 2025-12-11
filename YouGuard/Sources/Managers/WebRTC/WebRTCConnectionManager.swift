@@ -136,11 +136,16 @@ final class WebRTCConnectionManager: ObservableObject {
 			if connectionState == .failed || connectionState == .disconnected {
 				print("WebRTCConnectionManager: Reconnecting on foreground (state failed/disconnected)")
 				connect()
-			} else if connectionState == .connected && remoteVideoTrack == nil {
-				// Connection state shows connected but no video track - need to reconnect
-				print("WebRTCConnectionManager: Reconnecting on foreground (no video track)")
-				disconnect()
-				connect()
+			} else if connectionState == .connected {
+				// Verify the connection is actually alive
+				let isAlive = signalingClient?.isConnectionAlive() ?? false
+				if !isAlive || remoteVideoTrack == nil {
+					print("WebRTCConnectionManager: Reconnecting on foreground (connection dead or no video track)")
+					disconnect()
+					connect()
+				} else {
+					print("WebRTCConnectionManager: Connection verified alive on foreground")
+				}
 			} else if connectionState == .connecting || connectionState == .reconnecting {
 				// Already trying to connect, do nothing
 				print("WebRTCConnectionManager: Already connecting, no action needed")
@@ -191,6 +196,17 @@ extension WebRTCConnectionManager: SignalingClientDelegate {
 		print("WebRTCConnectionManager: Signaling disconnected")
 		Task { @MainActor in
 			if self.connectionState == .connecting || self.connectionState == .connected {
+				self.errorMessage = "Mất kết nối"
+				self.connectionState = .failed
+				self.scheduleReconnect()
+			}
+		}
+	}
+
+	nonisolated func signalingDidFailHealthCheck(_: SignalingClient) {
+		print("WebRTCConnectionManager: Signaling health check failed")
+		Task { @MainActor in
+			if self.connectionState == .connected || self.connectionState == .connecting {
 				self.errorMessage = "Mất kết nối"
 				self.connectionState = .failed
 				self.scheduleReconnect()

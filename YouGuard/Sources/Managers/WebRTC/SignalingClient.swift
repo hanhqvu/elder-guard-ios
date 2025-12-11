@@ -13,6 +13,7 @@ protocol SignalingClientDelegate: AnyObject {
 	func signaling(_ client: SignalingClient, didReceiveCandidate candidate: RTCIceCandidate)
 	func signalingDidConnect(_ client: SignalingClient)
 	func signalingDidDisconnect(_ client: SignalingClient)
+	func signalingDidFailHealthCheck(_ client: SignalingClient)
 }
 
 final class SignalingClient: NSObject {
@@ -26,6 +27,12 @@ final class SignalingClient: NSObject {
 
 	private var isConnected = false
 
+	// Heartbeat mechanism
+	private var heartbeatTimer: Timer?
+	private let heartbeatInterval: TimeInterval = 10 // Send ping every 10 seconds
+	private var lastPongReceived: Date?
+	private let heartbeatTimeout: TimeInterval = 30 // Consider connection dead if no pong for 30 seconds
+
 	init(url: URL) {
 		self.url = url
 		super.init()
@@ -37,6 +44,7 @@ final class SignalingClient: NSObject {
 		webSocketTask = session.webSocketTask(with: url)
 		webSocketTask?.resume()
 		readMessage()
+		startHeartbeat()
 	}
 
 	/// Send ready signal to request offer from server
@@ -52,6 +60,7 @@ final class SignalingClient: NSObject {
 	}
 
 	func disconnect() {
+		stopHeartbeat()
 		webSocketTask?.cancel(with: .goingAway, reason: nil)
 		webSocketTask = nil
 		urlSession?.invalidateAndCancel()
@@ -115,6 +124,12 @@ final class SignalingClient: NSObject {
 
 				case let .failure(error):
 					print("SignalingClient: WebSocket receive error: \(error)")
+					// Receive loop failed - connection is likely dead
+					self.isConnected = false
+					DispatchQueue.main.async { [weak self] in
+						guard let self else { return }
+						self.delegate?.signalingDidDisconnect(self)
+					}
 			}
 		}
 	}
@@ -159,6 +174,92 @@ final class SignalingClient: NSObject {
 			}
 		}
 	}
+
+	// MARK: - Connection Health
+
+	func isConnectionAlive() -> Bool {
+		guard isConnected,
+		      let task = webSocketTask,
+		      task.state == .running
+		else {
+			return false
+		}
+
+		// Check if heartbeat has timed out
+		if let lastPong = lastPongReceived {
+			let timeSinceLastPong = Date().timeIntervalSince(lastPong)
+			if timeSinceLastPong > heartbeatTimeout {
+				print("SignalingClient: Heartbeat timeout - no pong received for \(timeSinceLastPong)s")
+				return false
+			}
+		}
+
+		return true
+	}
+
+	// MARK: - Heartbeat
+
+	private func startHeartbeat() {
+		stopHeartbeat()
+		lastPongReceived = Date() // Initialize to now
+
+		print("SignalingClient: Starting heartbeat with interval \(heartbeatInterval)s")
+
+		heartbeatTimer = Timer.scheduledTimer(withTimeInterval: heartbeatInterval, repeats: true) { [weak self] _ in
+			self?.sendPing()
+		}
+
+		// Add to main run loop to work in background
+		if let timer = heartbeatTimer {
+			RunLoop.main.add(timer, forMode: .common)
+		}
+	}
+
+	private func stopHeartbeat() {
+		heartbeatTimer?.invalidate()
+		heartbeatTimer = nil
+		lastPongReceived = nil
+		print("SignalingClient: Stopped heartbeat")
+	}
+
+	private func sendPing() {
+		guard let task = webSocketTask, task.state == .running else {
+			print("SignalingClient: Cannot send ping - task not running")
+			handleHeartbeatFailure()
+			return
+		}
+
+		// Check if last pong timed out before sending new ping
+		if let lastPong = lastPongReceived {
+			let timeSinceLastPong = Date().timeIntervalSince(lastPong)
+			if timeSinceLastPong > heartbeatTimeout {
+				print("SignalingClient: Heartbeat timeout - no pong for \(timeSinceLastPong)s")
+				handleHeartbeatFailure()
+				return
+			}
+		}
+
+		task.sendPing { [weak self] error in
+			if let error {
+				print("SignalingClient: Ping failed: \(error)")
+				self?.handleHeartbeatFailure()
+			} else {
+				// Pong is received through URLSessionWebSocketDelegate
+				print("SignalingClient: Ping sent successfully")
+			}
+		}
+	}
+
+	private func handleHeartbeatFailure() {
+		print("SignalingClient: Heartbeat failed - connection is dead")
+		isConnected = false
+		stopHeartbeat()
+
+		DispatchQueue.main.async { [weak self] in
+			guard let self else { return }
+			self.delegate?.signalingDidFailHealthCheck(self)
+		}
+	}
 }
 
 // MARK: - URLSessionWebSocketDelegate
@@ -183,10 +284,21 @@ extension SignalingClient: URLSessionWebSocketDelegate {
 		reason _: Data?
 	) {
 		isConnected = false
+		stopHeartbeat()
 		DispatchQueue.main.async { [weak self] in
 			guard let self else { return }
 			self.delegate?.signalingDidDisconnect(self)
 		}
+	}
+
+	// Handle pong responses to keep track of connection health
+	func urlSession(
+		_: URLSession,
+		webSocketTask _: URLSessionWebSocketTask,
+		didReceivePong _: Data?
+	) {
+		lastPongReceived = Date()
+		print("SignalingClient: Received pong")
 	}
 }
 
