@@ -57,6 +57,7 @@ struct YouGuardApp: App {
 	var body: some Scene {
 		WindowGroup {
 			TabNavigationView()
+				.tint(.purple)
 		}
 	}
 }

@@ -59,6 +59,7 @@ struct PersonRowView: View {
 			VStack(alignment: .leading, spacing: 4) {
 				Text(person.name)
 					.font(.headline)
+					.foregroundColor(.purple)
 				Text("\(person.gender), \(person.age) tuổi")
 					.font(.subheadline)
 					.foregroundColor(.secondary)

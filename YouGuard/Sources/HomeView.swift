@@ -74,7 +74,7 @@ struct HomeView: View {
 			} label: {
 				HStack {
 					Image(systemName: "bed.double.fill")
-						.foregroundStyle(.purple)
+						.foregroundStyle(.teal)
 					Text("Phòng ngủ")
 						.font(.headline)
 				}

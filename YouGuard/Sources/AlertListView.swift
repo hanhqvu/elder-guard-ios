@@ -198,7 +198,7 @@ struct NotificationRow: View {
 
 				Image(systemName: "play.circle.fill")
 					.font(.system(size: 24))
-					.foregroundStyle((isFirstNotification && !firstNotificationTapped) ? Color.red : Color.blue)
+					.foregroundStyle((isFirstNotification && !firstNotificationTapped) ? Color.red : Color.purple)
 			}
 			.padding(.vertical, 8)
 			.contentShape(Rectangle())

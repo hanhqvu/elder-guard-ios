@@ -28,6 +28,7 @@ struct TabNavigationView: View {
 				ActivityView()
 			}
 		}
+		.tint(.purple)
 		.task {
 			await fetchNotifications()
 		}
