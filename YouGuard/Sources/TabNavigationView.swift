@@ -16,15 +16,15 @@ struct TabNavigationView: View {
 
 	var body: some View {
 		TabView(selection: $selectedTab) {
-			Tab("Alert", systemImage: "bell.fill", value: .alert) {
+			Tab("Cảnh báo", systemImage: "bell.fill", value: .alert) {
 				AlertListView()
 			}
 
-			Tab("Home", systemImage: "house.fill", value: .home) {
+			Tab("Trang chủ", systemImage: "house.fill", value: .home) {
 				HomeView()
 			}
 
-			Tab("Activity", systemImage: "list.bullet", value: .activity) {
+			Tab("Hoạt động", systemImage: "list.bullet", value: .activity) {
 				ActivityView()
 			}
 		}

@@ -23,15 +23,15 @@ struct ActivityData: Identifiable {
 }
 
 enum TimePeriod: String, CaseIterable {
-	case daily = "D"
-	case weekly = "W"
-	case monthly = "M"
+	case daily = "Ngày"
+	case weekly = "Tuần"
+	case monthly = "Tháng"
 }
 
 enum ActivityType: String, CaseIterable {
-	case standing = "Standing"
-	case sitting = "Sitting"
-	case lying = "Lying"
+	case standing = "Đứng"
+	case sitting = "Ngồi"
+	case lying = "Nằm"
 
 	var color: Color {
 		switch self {
@@ -252,7 +252,7 @@ struct ActivityView: View {
 		ScrollView {
 			VStack(spacing: 20) {
 				// Period Picker
-				Picker("Time Period", selection: $selectedPeriod) {
+				Picker("Duration", selection: $selectedPeriod) {
 					ForEach(TimePeriod.allCases, id: \.self) { period in
 						Text(period.rawValue).tag(period)
 					}
@@ -263,7 +263,7 @@ struct ActivityView: View {
 				// Pie Chart Group Box
 				GroupBox {
 					VStack(alignment: .leading, spacing: 10) {
-						Text("Activity Distribution")
+						Text("Phân bố hoạt động")
 							.font(.headline)
 
 						pieChartView
@@ -275,7 +275,7 @@ struct ActivityView: View {
 				// Standing Bar Chart Group Box
 				GroupBox {
 					ActivityBarChart(
-						title: "Standing Duration",
+						title: "Thời gian đứng",
 						activityData: activityData,
 						activityType: .standing,
 						selectedPeriod: selectedPeriod,
@@ -290,7 +290,7 @@ struct ActivityView: View {
 				// Sitting Bar Chart Group Box
 				GroupBox {
 					ActivityBarChart(
-						title: "Sitting Duration",
+						title: "Thời gian ngồi",
 						activityData: activityData,
 						activityType: .sitting,
 						selectedPeriod: selectedPeriod,
@@ -305,7 +305,7 @@ struct ActivityView: View {
 				// Lying Bar Chart Group Box
 				GroupBox {
 					ActivityBarChart(
-						title: "Lying Duration",
+						title: "Thời gian nằm",
 						activityData: activityData,
 						activityType: .lying,
 						selectedPeriod: selectedPeriod,
@@ -323,7 +323,7 @@ struct ActivityView: View {
 			}
 			.padding(.vertical)
 		}
-		.navigationTitle("Activity Tracking")
+		.navigationTitle("Theo dõi hoạt động")
 		.onAppear {
 			withAnimation(.easeOut(duration: 1.0)) {
 				animateChart = true

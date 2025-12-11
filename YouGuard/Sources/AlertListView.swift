@@ -26,7 +26,7 @@ struct AlertListView: View {
 	@State private var firstNotificationId: String?
 	@State private var firstNotificationTapped = false
 
-	private let emergencyPhoneNumber = "911"
+	private let emergencyPhoneNumber = "115"
 
 	var body: some View {
 		NavigationStack {
@@ -39,7 +39,7 @@ struct AlertListView: View {
 					notificationsList
 				}
 			}
-			.navigationTitle("Alert")
+			.navigationTitle("Cảnh báo")
 			.refreshable {
 				await fetchNotifications(forceRefresh: true)
 			}
@@ -48,8 +48,8 @@ struct AlertListView: View {
 					await fetchNotifications()
 				}
 			}
-			.alert("Error", isPresented: .constant(errorMessage != nil && !notifications.isEmpty)) {
-				Button("OK") {
+			.alert("Lỗi", isPresented: .constant(errorMessage != nil && !notifications.isEmpty)) {
+				Button("Đồng ý") {
 					errorMessage = nil
 				}
 			} message: {
@@ -82,7 +82,7 @@ struct AlertListView: View {
 	private var loadingView: some View {
 		VStack {
 			Spacer()
-			ProgressView("Loading alert...")
+			ProgressView("Đang tải cảnh báo...")
 			Spacer()
 		}
 	}
@@ -96,7 +96,7 @@ struct AlertListView: View {
 					.font(.system(size: 48))
 					.foregroundStyle(.secondary)
 
-				Text("Error Loading Alerts")
+				Text("Lỗi khi tải cảnh báo")
 					.font(.headline)
 
 				Text(errorMessage)
@@ -109,12 +109,8 @@ struct AlertListView: View {
 					.font(.system(size: 48))
 					.foregroundStyle(.secondary)
 
-				Text("No Alerts")
+				Text("Không có cảnh báo")
 					.font(.headline)
-
-				Text("You're all caught up!")
-					.font(.subheadline)
-					.foregroundStyle(.secondary)
 			}
 
 			Spacer()
@@ -182,7 +178,7 @@ struct NotificationRow: View {
 
 				VStack(alignment: .leading, spacing: 4) {
 					HStack {
-						Text(notification.type.capitalized)
+						Text("Phát hiện ngã")
 							.font(.headline)
 							.foregroundStyle((isFirstNotification && !firstNotificationTapped) ? Color.red : Color.primary)
 

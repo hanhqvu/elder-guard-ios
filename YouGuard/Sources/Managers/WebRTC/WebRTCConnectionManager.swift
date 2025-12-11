@@ -191,7 +191,7 @@ extension WebRTCConnectionManager: SignalingClientDelegate {
 		print("WebRTCConnectionManager: Signaling disconnected")
 		Task { @MainActor in
 			if self.connectionState == .connecting || self.connectionState == .connected {
-				self.errorMessage = "Disconnected"
+				self.errorMessage = "Mất kết nối"
 				self.connectionState = .failed
 				self.scheduleReconnect()
 			}
@@ -205,7 +205,7 @@ extension WebRTCConnectionManager: SignalingClientDelegate {
 				if let error {
 					print("WebRTCConnectionManager: Failed to set remote SDP: \(error)")
 					Task { @MainActor in
-						self?.errorMessage = "Connection failed"
+						self?.errorMessage = "Kết nối thất bại"
 						self?.connectionState = .failed
 						self?.scheduleReconnect()
 					}
@@ -257,11 +257,11 @@ extension WebRTCConnectionManager: WebRTCClientDelegate {
 					self.errorMessage = nil
 					self.resetReconnectAttempts()
 				case .failed:
-					self.errorMessage = "Connection failed"
+					self.errorMessage = "Kết nối thất bại"
 					self.connectionState = .failed
 					self.scheduleReconnect()
 				case .disconnected:
-					self.errorMessage = "Disconnected"
+					self.errorMessage = "Mất kết nối"
 					self.connectionState = .failed
 					self.scheduleReconnect()
 				case .closed:

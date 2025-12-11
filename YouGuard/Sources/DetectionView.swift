@@ -55,7 +55,7 @@ struct DetectionView: View {
 						Image(systemName: "xmark.circle.fill")
 							.font(.system(size: 48))
 							.foregroundStyle(.white, Color.gray.opacity(0.6))
-						Text("Dismiss")
+						Text("Đóng")
 							.font(.subheadline)
 					}
 				}
@@ -89,7 +89,7 @@ struct SlideToCallButton: View {
 					.fill(Color.red)
 
 				// Label
-				Text("Slide to Call")
+				Text("Vuốt sang phải để gọi")
 					.font(.headline)
 					.foregroundStyle(.white.opacity(1 - dragProgress))
 					.frame(maxWidth: .infinity)
@@ -133,5 +133,5 @@ struct SlideToCallButton: View {
 }
 
 #Preview {
-	DetectionView(notificationId: "preview-id", phoneNumber: "911")
+	DetectionView(notificationId: "preview-id", phoneNumber: "115")
 }

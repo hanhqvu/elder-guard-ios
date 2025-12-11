@@ -58,7 +58,7 @@ struct WebRTCStreamView: View {
 							}
 							.padding()
 						} else {
-							Text("No video")
+							Text("Không có video")
 								.foregroundStyle(.white.opacity(0.6))
 						}
 					}
