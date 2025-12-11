@@ -18,7 +18,8 @@ struct DetectionView: View {
 		VStack {
 			// Livestream Video
 			WebRTCStreamView()
-				.frame(width: .infinity, height: 250)
+				.frame(height: 250)
+				.frame(maxWidth: .infinity)
 				.clipShape(RoundedRectangle(cornerRadius: 12))
 
 			// Buttons

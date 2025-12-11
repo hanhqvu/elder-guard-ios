@@ -18,7 +18,7 @@ struct HomeView: View {
 				VStack(spacing: 16) {
 					WebRTCStreamView()
 						.frame(height: 250)
-						.frame(width: .infinity)
+						.frame(maxWidth: .infinity)
 						.clipShape(RoundedRectangle(cornerRadius: 12))
 
 					Button {
@@ -51,7 +51,7 @@ struct HomeView: View {
 				VStack(spacing: 16) {
 					WebRTCStreamView()
 						.frame(height: 250)
-						.frame(width: .infinity)
+						.frame(maxWidth: .infinity)
 						.clipShape(RoundedRectangle(cornerRadius: 12))
 
 					Button {
